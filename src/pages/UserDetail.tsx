@@ -3,20 +3,27 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchUsers, updateUser } from '../services/api';
 import myImage from '../assets/loading.gif';
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+}
+
 const UserDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [user, setUser] = useState<any>(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     fetchUsers()
       .then(response => {
-        const user = response.data.find((u: any) => u.id === parseInt(id));
+        const user = response.data.find((u: User) => u.id === parseInt(id));
         if (user) {
           setUser(user);
           setName(user.name);
@@ -31,17 +38,18 @@ const UserDetail = () => {
       });
   }, [id]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const updatedUser = { ...user, name, email, phone };
-    updateUser(id, updatedUser)
-      .then(() => {
-        setUser(updatedUser);
+    if (user) {
+      const updatedUser: User = { ...user, name, email, phone };
+      try {
+        await updateUser(user.id, updatedUser);
+        console.log('User updated successfully');
         navigate('/');
-      })
-      .catch(error => {
-        setError(error);
-      });
+      } catch (error) {
+        console.error('Error updating user:', error);
+      }
+    }
   };
 
   if (loading) return <div className="flex justify-center items-center min-h-screen"><img src={myImage} alt="Loading..." className="w-16 h-16" /></div>;

@@ -1,21 +1,28 @@
 import { useEffect, useState } from 'react';
-import { fetchUsers } from '../services/api.ts';
+import { fetchUsers } from '../services/api';
 import { Link } from 'react-router-dom';
 import myImage from '../assets/loading.gif';
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+}
+
 const UserList = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const handleDelete = (id) => {
-    if (id > 0){
-      if(window.confirm("Are you sure to delete this user")){
+  const handleDelete = (id: number) => {
+    if (id > 0) {
+      if (window.confirm("Are you sure to delete this user?")) {
         const dt = users.filter(item => item.id !== id);
-      setUsers(dt)
+        setUsers(dt);
       }
     }
-  }
+  };
 
   useEffect(() => {
     fetchUsers()
