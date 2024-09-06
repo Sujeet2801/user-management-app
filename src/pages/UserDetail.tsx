@@ -23,12 +23,14 @@ const UserDetail = () => {
   useEffect(() => {
     fetchUsers()
       .then(response => {
-        const user = response.data.find((u: User) => u.id === parseInt(id));
-        if (user) {
-          setUser(user);
-          setName(user.name);
-          setEmail(user.email);
-          setPhone(user.phone);
+        const foundUser = response.data.find((u: User) => {
+          if (id !== undefined) {
+            return u.id === parseInt(id);
+          }
+          return false;
+        });
+        if (foundUser) {
+          setUser(foundUser);
         }
         setLoading(false);
       })
